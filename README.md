@@ -87,5 +87,5 @@ Example:
 
 # Ips
 
-bastionIP = 84.201.135.46
-someinternalhostIP = 10.128.0.7
+bastion_IP = 84.201.135.46
+someinternalhost_IP = 10.128.0.7
