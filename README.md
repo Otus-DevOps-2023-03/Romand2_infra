@@ -1,6 +1,33 @@
 # Romand2-infra
 Romand2 Infra repository
 
+#Home Work 3
+
+testapp_IP = 51.250.70.109
+
+testapp_port = 9292
+
+Инициализация инстанса:
+
+1. Выполнить команду:
+    ```
+    yc compute instance create \
+        --name reddit-app \
+        --hostname reddit-app \
+        --memory=4 \
+        --create-boot-disk image-folder-id=standard-images,image-family=ubuntu-1604-lts,size=10GB \
+        --network-interface subnet-name=default-ru-central1-a,nat-ip-version=ipv4 \
+        --metadata serial-port-enable=1 \
+        --ssh-key ~/.ssh/appuser.pub
+    ```
+2. Скопировать на созданную ВМ файлы:
+    - ```install_ruby.sh```
+    - ```install_mongodb.sh```
+    - ```deploy_app.sh```
+    - ```start.sh```
+
+3. Запустить скрипт ```start.sh```
+-----------------------------------------------------
 
 #Home work 2
 
