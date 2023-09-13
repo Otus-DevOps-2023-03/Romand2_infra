@@ -20,14 +20,14 @@ variable subnet_id{
   description = "Subnet"
 }
 variable service_account_key_file{
-  description = "/home/rdolmatov/work/otus/Romand2_infra/packer/key.json"
+  description = "key.json"
 }
 variable private_key_path {
   # Описание переменной
   description = "~/.ssh/appuser"
 }
 variable "instances" {
-  description = "count instances"
+  description = "counts instances"
   type        = number
   default     = 1
 }
