@@ -1,56 +1,26 @@
-# Romand2-infra
-Romand2 Infra repository
+# HW-03 Infra
 
-#Home Work 3
+## Bastion
 
-testapp_IP = 51.250.70.109
-
-testapp_port = 9292
-
-Инициализация инстанса:
-
-1. Выполнить команду:
-    ```
-    yc compute instance create \
-        --name reddit-app \
-        --hostname reddit-app \
-        --memory=4 \
-        --create-boot-disk image-folder-id=standard-images,image-family=ubuntu-1604-lts,size=10GB \
-        --network-interface subnet-name=default-ru-central1-a,nat-ip-version=ipv4 \
-        --metadata serial-port-enable=1 \
-        --ssh-key ~/.ssh/appuser.pub
-    ```
-2. Скопировать на созданную ВМ файлы:
-    - ```install_ruby.sh```
-    - ```install_mongodb.sh```
-    - ```deploy_app.sh```
-    - ```start.sh```
-
-3. Запустить скрипт ```start.sh```
------------------------------------------------------
-
-#Home work 2
-
-### Create ssh-key
+### Create ssh-keys
 
 ```sh
-ssh-keygen -t rsa -f ~/.ssh/appuser -C appuser -P ""
-cat ~/.ssh/appuser.pub
+ssh-keygen -t rsa -f ~/.ssh/nik -C nik -P ""
+cat ~/.ssh/nik.pub
 ```
+Add `nik.pub` to yandex cloud.
 
-### SSH Forwarding
+### Start ssh-agent and add key
 
+```sh
+ eval `ssh-agent`
+ ssh-add ~/.ssh/<private_key>
+```
+Current public keys in agent:
 ```sh
 ssh-add -L
 ```
-Add key
-
-```sh
-ssh-add ~/.ssh/appuser
-```
-
-
-### Connect to somehost with bastion
+### Connect to internal host with bastion
 
 1. With ProxyJump ssh flag:
     `ssh -A -J <bastion_host> <internal_host>`
@@ -60,18 +30,22 @@ ssh-add ~/.ssh/appuser
 
     ```sh
     Host bastion
-    HostName <bastion...IP>
+    HostName <Your bastion IP>
     User appuser
 
     Host internal-host
-    HostName  <some...ip>
+    HostName  <Your Internal-host ip>
     ProxyJump bastion
     User appuser
     ```
+    2.2 Connect to internal:
 
+    ```sh
+    ssh internal-host
+    ```
 ## VPN Installation
 
-onnect to bastion host and run:
+Connect to bastion host and run:
 
 ```sh
 cat <<': cat <<EOF> setupvpn.sh
@@ -93,12 +67,11 @@ chmod +x setupvpn.sh
 ./setupvpn.sh
 ```
 After install open `https://<bastion_host>/login` in browser
-On bastionhost set mongo-db uri:
+On bastion_host set mongo-db uri:
 ```sh
    sudo pritunl set-mongodb mongodb://localhost:27017/pritunl
    sudo pritunl setup-key
 ```
-
 Copy generated key to browser
 Generate default-password:
 ```sh
@@ -109,10 +82,106 @@ Copy generated username and password to browser
 
 Add domain <ip>.sslip.io in pritunl
 
-Example:
-59.90.323.234.sslip.io
+![Alt screen1](./screens/screen1.png)
 
 # Ips
 
-bastion_IP = 84.201.135.46
-someinternalhost_IP = 10.128.0.7
+bastion_IP = 51.250.75.167
+
+someinternalhost_IP = 10.128.0.18
+
+
+# HW-04 CloudApp
+
+## Create cloud instance:
+
+` yc compute instance create   --name reddit-app   --hostname reddit-app   --memory=4   --create-boot-disk image-folder-id=standard-images,image-family=ubuntu-1604-lts,size=10GB   --network-interface subnet-name=default-ru-central1-b,   nat-ip-version=ipv4   --metadata serial-port-enable=1   --ssh-key ~/.ssh/appuser.pub`
+
+## Startup manual:
+
+  - Run Create instance
+  - Copy scripts:
+     `deploy.sh`
+     `install_mongodb.sh`
+     `install_ruby.sh`
+     `startup.sh`
+  - Run `startup.sh` on instance
+
+## Startup auto
+
+  Execute `yc_instance_create.sh` script
+
+## Ips
+
+testapp_IP = 158.160.67.56
+
+testapp_port = 9292
+
+# HW-05 Packer
+
+## Create service yc account
+
+```
+FOLDER_ID=$(yc config list | grep folder-id  | cut -d ":" -f2 | xargs)
+SERVICE_NAME="serviceacc"
+yc iam service-account create --name=$SERVICE_NAME --folder-id=$FOLDER_ID
+# Access rules
+ACCT_ID=$(yc iam service-account get $SERVICE_NAME | \
+          grep ^id | \
+                    awk '{print [}')
+                    echo "ACCT_ID=$ACCT_ID"
+                    yc resource-manager folder add-access-binding --id $FOLDER_ID --service-account-id $ACCT_ID \
+                        --role editor
+
+#  create IAM key
+ yc iam key create --service-account-id $ACCT_ID --output ./key.json
+ ']}')
+
+```
+
+## Install packer
+
+` wget https://hashicorp-releases.yandexcloud.net/packer/1.8.6/packer_1.8.6_linux_amd64.zip && unzip packer_1.8.6_linux_amd64.zip `
+Add to PATH var or copy packer to /usr/bin
+
+## Create vm image:
+
+`cd packer &&  packer build   -var-file=variables.json ./immutable.json `
+
+## Create compute instance
+
+`config-scripts/create-reddit-vm.sh`
+
+## Ips
+
+testapp_IP = 130.193.51.233
+
+testapp_port = 9292
+
+
+# HW-06 terraform-1
+
+## Structure
+- `terraform/main.tf` describes creation instances reddit-app
+- `terraform/outputs.tf`  - output variables in stdout
+- `terraform/variables.tf` - describes variables
+- `terraform/tfvars.example` - example of vars initialize
+- `terraform/lb.tf` - network load balancer
+
+## Deploy
+
+- Create yc service account and add editor permission.
+- Enter in `terraform` directory
+- Run commands:
+   ```
+    terraform init
+    terraform apply
+   ```
+## Run Check
+
+`terraform output | grep external_ip_address_lb`
+
+Open in browser http://external_ip_address_lb
+
+
+
