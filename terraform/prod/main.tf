@@ -36,6 +36,7 @@ module "app" {
 
 
 module "db" {
+  service_account_key_file = var.service_account_key_file
   source          = "../modules/db"
   public_key_path = var.public_key_path
   db_disk_image   = var.db_disk_image
