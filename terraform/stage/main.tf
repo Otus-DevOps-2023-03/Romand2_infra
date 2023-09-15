@@ -34,7 +34,6 @@ module "db" {
   db_disk_image            = var.db_disk_image
   subnet_id                = var.subnet_id
 //  depends_on               = [module.bastion] // Uncomment this line
-  bastion_host             = module.bastion.external_ip_address_bastion
   private_key_path         = var.private_key_path
 }
 
