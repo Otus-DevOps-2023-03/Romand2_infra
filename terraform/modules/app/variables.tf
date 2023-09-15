@@ -18,4 +18,6 @@ variable "instances" {
   description = "counts instances"
   default     = 1
 }
-
+variable "db_address" {
+  description = "Database IP address"
+}

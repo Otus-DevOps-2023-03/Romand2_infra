@@ -10,7 +10,7 @@
             "platform_id": "standard-v1",
             "use_ipv4_nat": true,
             "preemptible": true,
-            "service_account_key_file": "key.json"
+            "service_account_key_file": "key.json",
 	    "subnet_id": "{{ user `subnet` }}"
         }
     ],
