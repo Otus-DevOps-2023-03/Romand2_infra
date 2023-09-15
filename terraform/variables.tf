@@ -29,5 +29,16 @@ variable "instance_count" {
   description = "instance count"
   type        = number
   default     = 3
-
 }
+variable "bucket_name" {
+  description = "storage bucket name"
+}
+
+variable "access_key" {
+  description = "access key for storage bucket"
+}
+
+variable "secret_key" {
+  description = "secret key for storage bucket"
+}
+
