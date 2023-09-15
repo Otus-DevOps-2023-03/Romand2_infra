@@ -25,6 +25,9 @@ module "vpc" {
 }
 
 module "app" {
+  service_account_key_file = var.service_account_key_file
+  db_address               = module.db.internal_ip_address_db
+  private_key_path         = var.private_key_path
   source          = "../modules/app"
   public_key_path = var.public_key_path
   app_disk_image  = var.app_disk_image
